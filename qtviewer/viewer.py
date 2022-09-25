@@ -25,6 +25,7 @@ class Viewer(QtWidgets.QWidget):
         self.paused = False
         self.item = None
         self.resolution = None
+        self.frame = None
 
         self.init_ui()
         self.connect_ui()
@@ -40,13 +41,15 @@ class Viewer(QtWidgets.QWidget):
         self.item = GraphicsNPArrayItem(buffer)
         self.scene.addItem(self.item)
 
-        # TODO: update rect when resolution changes
         rect = QtCore.QRect(0, 0, self.resolution.x,  self.resolution.y)
         pen = QtGui.QPen(QtGui.QColor(100, 100, 100))
         pen.setStyle(QtCore.Qt.DotLine)
         brush = QtGui.QBrush()
         brush.setStyle(QtCore.Qt.NoBrush)
         self.frame = self.scene.addRect(rect, pen, brush)
+
+        # TODO: you deserve coding hell
+        self.bounding_box = self.scene.addRect(-500, -500, self.resolution.x + 1000, self.resolution.y + 1000, pen, brush)
 
     def init_ui(self):
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -201,6 +204,12 @@ class Viewer(QtWidgets.QWidget):
     def update_resolution(self, x, y):
         self.resolution_lbl.setText(f'{x:.0f}x{y:.0f}')
         self.resolution = Int2(x, y)
+
+        # TODO: Just end yourself you garbage human being
+        if self.frame:
+            self.frame.setRect(0, 0, self.resolution.x,  self.resolution.y)
+            self.bounding_box.setRect(-500, -500, self.resolution.x + 1000, self.resolution.y + 1000)
+
 
 
 class GraphicsView(QtWidgets.QGraphicsView):
