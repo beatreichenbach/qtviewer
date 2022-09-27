@@ -98,16 +98,16 @@ class Viewer(QtWidgets.QWidget):
         header_lay.addWidget(self.zoom_cmb)
 
         # proxy resolution
-        proxy_items = OrderedDict()
-        for i in range(6):
-            ratio = 2**i
-            proxy_items[f'1:{ratio}'] = ratio
-        proxy_enum = Enum('Proxy_Resolution', proxy_items)
-        self.proxy_cmb = EnumProperty(
-            name='proxy',
-            enum=proxy_enum
-            )
-        header_lay.addWidget(self.proxy_cmb)
+        # proxy_items = OrderedDict()
+        # for i in range(6):
+        #     ratio = 2**i
+        #     proxy_items[f'1:{ratio}'] = ratio
+        # proxy_enum = Enum('Proxy_Resolution', proxy_items)
+        # self.proxy_cmb = EnumProperty(
+        #     name='proxy',
+        #     enum=proxy_enum
+        #     )
+        # header_lay.addWidget(self.proxy_cmb)
 
         # view
         self.main_view = GraphicsView()
@@ -211,7 +211,6 @@ class Viewer(QtWidgets.QWidget):
             self.bounding_box.setRect(-500, -500, self.resolution.x + 1000, self.resolution.y + 1000)
 
 
-
 class GraphicsView(QtWidgets.QGraphicsView):
     zoom_changed = QtCore.Signal(float)
     pixel_data_changed = QtCore.Signal(dict)
@@ -232,6 +231,7 @@ class GraphicsView(QtWidgets.QGraphicsView):
         }
 
         self.setMouseTracking(True)
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
 
         self.setDragMode(self.ScrollHandDrag)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -317,6 +317,13 @@ class GraphicsView(QtWidgets.QGraphicsView):
         point = self.mapToScene(event.pos())
         position = Int2(point.x(), point.y())
         return position
+
+    def keyPressEvent(self, event):
+        super().keyPressEvent(event)
+        logging.debug('bob')
+        if event.key() == QtCore.Qt.Key_F:
+            self.fit()
+            event.accept()
 
     @property
     def absolute_scale(self):
