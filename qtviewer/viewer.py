@@ -16,6 +16,7 @@ class Viewer(QtWidgets.QWidget):
     # needs to be built with opengl support. There is no pip package with it enabled
     refreshed = QtCore.Signal()
     pause_changed = QtCore.Signal(bool)
+    position_changed = QtCore.Signal(Int2)
 
     background_color = QtGui.QColor(0, 0, 0)
 
@@ -57,7 +58,9 @@ class Viewer(QtWidgets.QWidget):
         self.layout().setSpacing(0)
 
         header_lay = QtWidgets.QHBoxLayout()
+        header_lay.setSpacing(4)
         self.layout().addLayout(header_lay)
+        self.header_layout = header_lay
 
         # exposure
         self.exposure_slider = FloatProperty(
@@ -140,6 +143,7 @@ class Viewer(QtWidgets.QWidget):
 
         self.main_view.zoom_changed.connect(self.zoom_changed)
         self.main_view.pixel_data_changed.connect(self.update_pixel_data)
+        self.main_view.position_changed.connect(self.position_changed)
 
     def exposure_changed(self, value):
         if self.item:
