@@ -42,15 +42,16 @@ class Viewer(QtWidgets.QWidget):
         self.item = GraphicsNPArrayItem(buffer)
         self.scene.addItem(self.item)
 
-        rect = QtCore.QRect(0, 0, self.resolution.x,  self.resolution.y)
+        rect = QtCore.QRect(-0.5, -0.5, self.resolution.x + 0.5,  self.resolution.y + 0.5)
         pen = QtGui.QPen(QtGui.QColor(100, 100, 100))
         pen.setStyle(QtCore.Qt.DotLine)
         brush = QtGui.QBrush()
         brush.setStyle(QtCore.Qt.NoBrush)
-        self.frame = self.scene.addRect(rect, pen, brush)
+        # self.frame = self.scene.addRect(rect, pen, brush)
 
         # TODO: you deserve coding hell
         self.bounding_box = self.scene.addRect(-500, -500, self.resolution.x + 1000, self.resolution.y + 1000, pen, brush)
+        self.main_view.fit()
 
     def init_ui(self):
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -124,6 +125,7 @@ class Viewer(QtWidgets.QWidget):
         footer_wdg.setAutoFillBackground(True)
         palette = footer_wdg.palette()
         palette.setColor(QtGui.QPalette.Window, self.background_color)
+        palette.setColor(QtGui.QPalette.WindowText, palette.color(QtGui.QPalette.BrightText))
         footer_wdg.setPalette(palette)
 
         self.resolution_lbl = QtWidgets.QLabel('resolution')
@@ -211,7 +213,8 @@ class Viewer(QtWidgets.QWidget):
 
         # TODO: Just end yourself you garbage human being
         if self.frame:
-            self.frame.setRect(0, 0, self.resolution.x,  self.resolution.y)
+            rect = QtCore.QRectF(-0.5, -0.5, self.resolution.x + 0.5,  self.resolution.y + 0.5)
+            self.frame.setRect(rect)
             self.bounding_box.setRect(-500, -500, self.resolution.x + 1000, self.resolution.y + 1000)
 
 
@@ -310,7 +313,9 @@ class GraphicsView(QtWidgets.QGraphicsView):
 
         item = self.scene().items()[-1]
         rgb = item.pixel(position.x, position.y)
-        hsv = colorsys.rgb_to_hsv(*rgb) if rgb is not None else None
+        hsv = None
+        if rgb is not None and (rgb > 0).all():
+            hsv = colorsys.rgb_to_hsv(*rgb)
         self.pixel_data = {
             'position': position,
             'rgb': rgb,
@@ -450,7 +455,7 @@ def image_from_buffer(buffer):
     buffer = buffer.astype(np.uint8)
     height, width, channels = buffer.shape
     bytes_per_line = 3 * width
-    image = QtGui.QImage(buffer.data, width, height, bytes_per_line, QtGui.QImage.Format_RGB888)
+    image = QtGui.QImage(buffer.data, width, height, bytes_per_line, QtGui.QImage.Format_BGR888)
     image = image.rgbSwapped()
     return image
 
