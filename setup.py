@@ -6,14 +6,11 @@ setup(
     description='A Qt Viewer for displaying QImages or Numpy Buffers',
     author='Beat Reichenbach',
     packages=[
-        'qtviewer',
-        'qtproperties'
+        'qtviewer'
         ],
     install_requires=[
         'PySide2',
-        'numpy'
-        ],
-    package_dir={
-        'qtproperties': '../029_qtproperties'
-    }
+        'numpy',
+        'qtproperties @ git+https://github.com/beatreichenbach/qtproperties',
+        ]
 )
