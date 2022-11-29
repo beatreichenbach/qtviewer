@@ -42,15 +42,14 @@ class Viewer(QtWidgets.QWidget):
         self.item = GraphicsNPArrayItem(buffer)
         self.scene.addItem(self.item)
 
-        rect = QtCore.QRect(-0.5, -0.5, self.resolution.x + 0.5,  self.resolution.y + 0.5)
+        rect = QtCore.QRect(0, 0, self.resolution.x,  self.resolution.y)
         pen = QtGui.QPen(QtGui.QColor(100, 100, 100))
         pen.setStyle(QtCore.Qt.DotLine)
+        pen.setWidth(0)
         brush = QtGui.QBrush()
         brush.setStyle(QtCore.Qt.NoBrush)
-        # self.frame = self.scene.addRect(rect, pen, brush)
+        self.frame = self.scene.addRect(rect, pen, brush)
 
-        # TODO: you deserve coding hell
-        self.bounding_box = self.scene.addRect(-500, -500, self.resolution.x + 1000, self.resolution.y + 1000, pen, brush)
         self.main_view.fit()
 
     def init_ui(self):
@@ -213,9 +212,8 @@ class Viewer(QtWidgets.QWidget):
 
         # TODO: Just end yourself you garbage human being
         if self.frame:
-            rect = QtCore.QRectF(-0.5, -0.5, self.resolution.x + 0.5,  self.resolution.y + 0.5)
+            rect = QtCore.QRectF(0, 0, self.resolution.x,  self.resolution.y)
             self.frame.setRect(rect)
-            self.bounding_box.setRect(-500, -500, self.resolution.x + 1000, self.resolution.y + 1000)
 
 
 class GraphicsView(QtWidgets.QGraphicsView):
@@ -244,6 +242,9 @@ class GraphicsView(QtWidgets.QGraphicsView):
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.viewport().setCursor(QtCore.Qt.CrossCursor)
+
+        # 16k scene
+        self.setSceneRect(-2**13, -2**13, 2**14, 2**14)
 
     def wheelEvent(self, event):
         zoom_in_factor = 1.25
@@ -364,7 +365,6 @@ class GraphicsView(QtWidgets.QGraphicsView):
     def position(self, value):
         self._position = value
         self.position_changed.emit(value)
-        logging.debug(value)
 
     @property
     def pixel_data(self):
@@ -388,7 +388,6 @@ class GraphicsNPArrayItem(QtWidgets.QGraphicsItem):
         self.update()
 
     def paint(self, painter, option, widget):
-        # logging.info('paint')
         painter.drawImage(option.rect, self.image)
 
     def boundingRect(self):
