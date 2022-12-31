@@ -144,7 +144,7 @@ class Viewer(QtWidgets.QWidget):
 
         self.main_view.zoom_changed.connect(self.zoom_changed)
         self.main_view.pixel_data_changed.connect(self.update_pixel_data)
-        self.main_view.position_changed.connect(self.position_changed)
+        self.main_view.position_changed.connect(self.update_position)
 
     def exposure_changed(self, value):
         if self.item:
@@ -214,6 +214,10 @@ class Viewer(QtWidgets.QWidget):
         if self.frame:
             rect = QtCore.QRectF(0, 0, self.resolution.x,  self.resolution.y)
             self.frame.setRect(rect)
+
+    def update_position(self, position):
+        position.y = self.resolution.y - position.y
+        self.position_changed.emit(position)
 
 
 class GraphicsView(QtWidgets.QGraphicsView):
@@ -330,7 +334,6 @@ class GraphicsView(QtWidgets.QGraphicsView):
 
     def keyPressEvent(self, event):
         super().keyPressEvent(event)
-        logging.debug('bob')
         if event.key() == QtCore.Qt.Key_F:
             self.fit()
             event.accept()
